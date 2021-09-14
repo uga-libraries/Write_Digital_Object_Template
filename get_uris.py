@@ -374,8 +374,8 @@ def get_aspace_log(defaults):
                                 error_message += line + "\n"
                         else:
                             error_message = str(connection_error)
-                        psg.Popup("Your username, password, and/or API credentials \n "
-                                  "were entered incorrectly. Please try again.\n\n" +
+                        psg.Popup("Your username and/or password were entered\n "
+                                  "incorrectly. Please try again.\n\n" +
                                   error_message)
                     else:
                         defaults["as_api"] = values_log["_ASPACE_API_"]
