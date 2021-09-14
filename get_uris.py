@@ -1,13 +1,15 @@
-import sys
 import json
+import os
 import platform
 import subprocess
-import os
+import sys
 from pathlib import Path
+from asnake.client import ASnakeClient
+from asnake.client.web_client import ASnakeAuthError
 from openpyxl import load_workbook
 from openpyxl.styles import PatternFill
-from asnake.client import ASnakeClient
 import PySimpleGUI as psg
+import requests
 
 
 def gui():
@@ -290,9 +292,9 @@ def write_digobj(resource_uri, archobj_uri, digobj_id, digobj_title,
     try:
         dotemp_wb.save(dotemp_file)
         return None
-    except Exception as e:
+    except Exception as save_exception:
         error = f'\n\nFailed opening {dotemp_file}. ' \
-                f'Please close the record before trying again.\nError: {e}'
+                f'Please close the record before trying again.\nError: {save_exception}'
         gui_window[f'{"_WRITE_DOS_"}'].update(disabled=False)
         return error
 
@@ -353,31 +355,37 @@ def get_aspace_log(defaults):
         while window_asplog_active is True:
             event_log, values_log = window_login.Read()
             if event_log == "_SAVE_CLOSE_LOGIN_":
+                connect_client = ASnakeClient(baseurl=values_log["_ASPACE_API_"],
+                                              username=values_log["_ASPACE_UNAME_"],
+                                              password=values_log["_ASPACE_PWORD_"])
                 try:
-                    connect_client = ASnakeClient(baseurl=values_log["_ASPACE_API_"],
-                                                  username=values_log["_ASPACE_UNAME_"],
-                                                  password=values_log["_ASPACE_PWORD_"])
-                    connect_client.authorize()
-                except Exception as connection_error:
-                    error_message = ""
-                    if ":" in str(connection_error):
-                        error_divided = str(connection_error).split(":")
-                        for line in error_divided:
-                            error_message += line + "\n"
-                    else:
-                        error_message = str(connection_error)
-                    psg.Popup("Your username and/or password were entered incorrectly. "
-                              "Please try again.\n\n" +
-                              error_message)
+                    requests.get(values_log["_ASPACE_API_"])
+                except Exception as api_error:
+                    psg.Popup("Your API credentials were entered incorrectly.\n"
+                              "Please try again.\n\n" + api_error.__str__())
                 else:
-                    defaults["as_api"] = values_log["_ASPACE_API_"]
-                    repo_results = connect_client.get('/repositories')
-                    repo_results_dec = json.loads(repo_results.content.decode())
-                    for result in repo_results_dec:
-                        uri_components = result["uri"].split("/")
-                        repositories[result["name"]] = int(uri_components[-1])
-                    window_asplog_active = False
-                    correct_creds = True
+                    try:
+                        connect_client.authorize()
+                    except ASnakeAuthError as connection_error:
+                        error_message = ""
+                        if ":" in str(connection_error):
+                            error_divided = str(connection_error).split(":")
+                            for line in error_divided:
+                                error_message += line + "\n"
+                        else:
+                            error_message = str(connection_error)
+                        psg.Popup("Your username, password, and/or API credentials \n "
+                                  "were entered incorrectly. Please try again.\n\n" +
+                                  error_message)
+                    else:
+                        defaults["as_api"] = values_log["_ASPACE_API_"]
+                        repo_results = connect_client.get('/repositories')
+                        repo_results_dec = json.loads(repo_results.content.decode())
+                        for result in repo_results_dec:
+                            uri_components = result["uri"].split("/")
+                            repositories[result["name"]] = int(uri_components[-1])
+                        window_asplog_active = False
+                        correct_creds = True
             if event_log is None or event_log == 'Cancel':
                 window_login.close()
                 window_asplog_active = False
