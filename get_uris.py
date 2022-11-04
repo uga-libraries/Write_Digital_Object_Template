@@ -209,16 +209,17 @@ def get_results(client, repo, digobj_title, digobj_date):
             top_container_json = client.get(result_container_uri).json()
             box_coll_info = top_container_json["long_display_string"]
             box_coll_list = box_coll_info.split(",")
-            result_child = result["child_container_u_sstr"][0]
+            # result_child = result["child_container_u_sstr"][0]
             result_option = f'{result["title"]}; ' \
                             f'{box_coll_list[0]}; ' \
-                            f'{result_child}; ' \
                             f'{box_coll_list[1]}'
+                            # f'{result_child}; ' \
+
             search_options.append(result_option)
         multresults_layout = [[psg.Text(f'\n\nFound multiple options for'
                                         f'\n{digobj_title}, {digobj_date}\n\n'
                                         f'Choose one of the following:\n')],
-                              [psg.Listbox(search_options, size=(120, 5),
+                              [psg.Listbox(search_options, size=(200, 5),
                                            key="_ARCHOBJ_FILE_")],
                               [psg.Button(" SELECT ", key="_SELECT_ARCHOBJ_")]]
         multresults_window = psg.Window("Multiple Results for Archival Object",
