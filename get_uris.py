@@ -209,11 +209,14 @@ def get_results(client, repo, digobj_title, digobj_date):
             top_container_json = client.get(result_container_uri).json()
             box_coll_info = top_container_json["long_display_string"]
             box_coll_list = box_coll_info.split(",")
-            # result_child = result["child_container_u_sstr"][0]
+            if "child_container_u_sstr" in result:
+                result_child = result["child_container_u_sstr"][0]
+            else:
+                result_child = "N/A"
             result_option = f'{result["title"]}; ' \
-                            f'{box_coll_list[0]}; ' \
+                            f'{box_coll_list[0]}; '\
+                            f'{result_child}; '\
                             f'{box_coll_list[1]}'
-                            # f'{result_child}; ' \
 
             search_options.append(result_option)
         multresults_layout = [[psg.Text(f'\n\nFound multiple options for'
