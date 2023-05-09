@@ -1,3 +1,6 @@
+This repository was archived on 09/05/2023. We use other processes for this kind of work. See
+[ASpace > DLG Workflow](https://github.com/uga-libraries/dlg-uga_aspace_workflow).
+
 # Write_Digital_Object_Template
 This application takes a spreadsheet listing digital objects and searches ArchivesSpace for matching archival objects, 
 then writes data from the spreadsheet and matches from ArchivesSpace to the ArchivesSpace digital object import 
