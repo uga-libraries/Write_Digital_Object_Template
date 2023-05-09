@@ -127,6 +127,7 @@ def write_digobjs(digobj_file, dotemp_file, client, repo, gui_window):
         digobj_url = row[3]
         digobj_date = row[5]
         digobj_publish = row[8]
+        print(digobj_title)
         archobj_uri, resource_uri = get_results(client,
                                                 repo,
                                                 digobj_title,
@@ -201,10 +202,12 @@ def get_results(client, repo, digobj_title, digobj_date):
                                                "type": ['archival_object']})
     search_results = []
     for results in search_archobjs:
+        print(results)
         search_results.append(results)
     if len(search_results) > 1:
         search_options = []
         for result in search_results:
+            print(result)
             result_container_uri = result["top_container_uri_u_sstr"][0]
             top_container_json = client.get(result_container_uri).json()
             box_coll_info = top_container_json["long_display_string"]
